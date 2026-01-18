@@ -161,8 +161,9 @@
 
         // 1. 로그인 뷰
         const LoginView = ({ onLogin, loading }) => {
-            const [inputId, setInputId] = React.useState('partners');
-            const [inputPw, setInputPw] = React.useState('partners1!');
+            // [수정] 아이디/비밀번호 초기값을 빈 문자열로 변경
+            const [inputId, setInputId] = React.useState('');
+            const [inputPw, setInputPw] = React.useState('');
             const handleKeyDown = (e) => { if (e.key === 'Enter') onLogin(inputId, inputPw); };
 
             return (
