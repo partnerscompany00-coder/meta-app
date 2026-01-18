@@ -161,7 +161,6 @@
 
         // 1. 로그인 뷰
         const LoginView = ({ onLogin, loading }) => {
-            // [수정] 아이디/비밀번호 초기값을 빈 문자열로 변경
             const [inputId, setInputId] = React.useState('');
             const [inputPw, setInputPw] = React.useState('');
             const handleKeyDown = (e) => { if (e.key === 'Enter') onLogin(inputId, inputPw); };
@@ -171,7 +170,7 @@
                     <div className="w-full max-w-sm p-10 bg-white border border-slate-200 rounded-2xl shadow-xl">
                         <div className="mb-10 text-center">
                             <h1 className="text-3xl font-black italic uppercase text-slate-900">Meta Admin</h1>
-                            <p className="text-[10px] text-slate-400 mt-2 font-bold tracking-[0.3em] uppercase">System Access v20.3</p>
+                            <p className="text-[10px] text-slate-400 mt-2 font-bold tracking-[0.3em] uppercase">System Access v20.4</p>
                         </div>
                         <div className="space-y-4">
                             <div>
@@ -677,7 +676,7 @@
                         <div className="flex justify-between mb-6"><h3 className="font-black flex gap-2"><Icon name="wallet"/> 월별 현황</h3><div className="flex gap-3"><button onClick={()=>changeMonth(-1)}><Icon name="left"/></button><span>{targetMonth}</span><button onClick={()=>changeMonth(1)}><Icon name="right"/></button></div></div>
                         <div className="grid grid-cols-3 gap-4 text-center"><div><p className="text-[10px]">총 청구</p><p className="font-bold text-lg">{totalClaim.toLocaleString()}</p></div><div><p className="text-[10px]">완료</p><p className="font-bold text-lg text-emerald-400">{totalPaid.toLocaleString()}</p></div><div><p className="text-[10px]">미수금</p><p className="font-bold text-lg text-rose-400">{(totalClaim - totalPaid).toLocaleString()}</p></div></div>
                     </div>
-                    {/* 리스트 UI 생략 (기존 코드 사용) */}
+                    
                     <div className="bg-white border rounded-xl overflow-hidden shadow-sm">
                         <table className="w-full text-left text-xs font-bold">
                             <thead className="bg-slate-50 text-slate-500 border-b"><tr><th className="p-4">날짜</th><th className="p-4">내용</th><th className="p-4 text-right">금액</th><th className="p-4 text-center">상태</th></tr></thead>
@@ -795,7 +794,7 @@
 
             return (
                 <div className="space-y-6 fade-in">
-                    <div className="bg-white p-6 rounded-xl border shadow-sm"><h3 className="font-bold mb-4">신규 사용자</h3><div className="grid grid-cols-2 md:grid-cols-4 gap-3"><input className="p-3 border rounded" placeholder="사번" value={newUser.employeeId} onChange={e=>setNewUser({...newUser, employeeId:e.target.value})}/><input className="p-3 border rounded" placeholder="이름" value={newUser.name} onChange={e=>setNewUser({...newUser, name:e.target.value})}/><input className="p-3 border rounded" placeholder="연락처" value={newUser.phone} onChange={e=>setNewUser({...newUser, phone:e.target.value})}/><input className="p-3 border rounded" placeholder="생년월일" value={newUser.dob} onChange={e=>setNewUser({...newUser, dob:e.target.value})}/><input className="p-3 border rounded" placeholder="텔레그램 ID" value={newUser.telegramId} onChange={e=>setNewUser({...newUser, telegramId:e.target.value})}/><select className="p-3 border rounded" value={newUser.team} onChange={e=>setNewUser({...newUser, team:e.target.value})}>{branches.map(b=><option key={b.branchName}>{b.branchName}</option>)}</select><select className="p-3 border rounded" value={newUser.role} onChange={e=>setNewUser({...newUser, role:e.target.value})}><option>영업자</option><option>지점장</option><option>시스템관리자</option></select><button onClick={()=>{
+                    <div className="bg-white p-6 rounded-xl border shadow-sm"><h3 className="font-bold mb-4">신규 사용자</h3><div className="grid grid-cols-5 gap-3"><input className="p-3 border rounded" placeholder="사번" value={newUser.employeeId} onChange={e=>setNewUser({...newUser, employeeId:e.target.value})}/><input className="p-3 border rounded" placeholder="이름" value={newUser.name} onChange={e=>setNewUser({...newUser, name:e.target.value})}/><input className="p-3 border rounded" placeholder="텔레그램 ID" value={newUser.telegramId} onChange={e=>setNewUser({...newUser, telegramId:e.target.value})}/><button onClick={()=>{
                         if(!newUser.employeeId) return alert('정보 입력 필요'); 
                         onAddUser({...newUser, isNew: true}); 
                         // 입력창 초기화
@@ -925,91 +924,3 @@
                         fetch(`${API_URL}?table=apply_requests`).then(r => r.json()),
                         fetch(`${API_URL}?table=payments`).then(r => r.json()),
                         fetch(`${API_URL}?table=return_requests`).then(r => r.json()),
-                        fetch(`${API_URL}?table=product_settings`).then(r => r.json()),
-                        fetch(`${API_URL}?table=branches`).then(r => r.json()) 
-                    ]);
-                    if(dbRes.status === 'success') setMasterDB(dbRes.data || []);
-                    if(userRes.status === 'success') setPartners(userRes.data || []);
-                    if(applyRes.status === 'success') setApplyRequests(applyRes.data || []);
-                    if(payRes.status === 'success') setPayments(payRes.data || []);
-                    if(returnRes.status === 'success') setReturnRequests(returnRes.data || []);
-                    if(prodRes.status === 'success') setDbTypes(prodRes.data || []);
-                    if(branchRes.status === 'success') setBranches(branchRes.data || []);
-                } catch(e) {}
-            }, []);
-
-            React.useEffect(() => { if (view === 'main') refreshData(); }, [view, refreshData]);
-
-            // Handlers
-            const handleLogin = async (id, pw) => {
-                setLoading(true);
-                if (id === 'partners' && pw === 'partners1!') { await new Promise(r => setTimeout(r, 600)); setCurrentUser({ name: '최고관리자', team: '본사' }); setView('main'); setLoading(false); return; }
-                const res = await callApi('login', { employeeId: id.trim(), password: pw.trim() });
-                setLoading(false);
-                if (res?.status === 'success') { setCurrentUser(res.data.user); setView('main'); } else alert("로그인 실패");
-            };
-            const handleAddUser = async (user) => { await callApi('updateUser', user); refreshData(); };
-            const handleUpdateUser = async (user) => { await callApi('updateUser', user); refreshData(); };
-            
-            // 지점 관리 핸들러
-            const handleManageBranch = async (payload) => {
-                await callApi('manageBranch', payload);
-                refreshData(); 
-            };
-
-            // 결제 확인 처리 핸들러 (실제 동작)
-            const handleUpdatePayment = async (id, amount) => {
-                const newStatus = amount > 0 ? '결제완료' : '결제전'; // 단순 로직, 실제로는 총액 비교 필요
-                setPayments(prev => prev.map(p => p.paymentId === id ? { ...p, paidAmount: amount, status: newStatus } : p));
-                await callApi('updatePayment', { id, paidAmount: amount, status: newStatus });
-            };
-
-            // 반품 상태 변경 핸들러
-            const handleUpdateReturn = async (req) => {
-                 setReturnRequests(prev => prev.map(r => r.returnId === req.returnId ? req : r));
-                 await callApi('handleReturn', req); // 백엔드 로직에 상태 업데이트 기능 필요 (현재는 추가만 있음, 수정 필요 시 백엔드 보완)
-                 // NOTE: 현재 백엔드는 insert만 지원하므로, 상태 업데이트는 별도 구현 필요하나 UI 상으로는 반영됨.
-            };
-
-            return (
-                <div className="min-h-screen flex font-sans text-slate-900">
-                    {view === 'login' ? <LoginView onLogin={handleLogin} loading={loading} /> : (
-                        <>
-                            <aside className="w-64 bg-slate-900 text-slate-400 p-6 flex flex-col shrink-0 transition-all">
-                                <div className="mb-10 pl-2"><h1 className="text-2xl text-white italic tracking-tighter">Meta Rich</h1></div>
-                                <nav className="space-y-1 flex-1">
-                                    {[{id: 'dashboard', label: '대시보드', icon: 'dashboard'}, {id: 'db', label: 'DB 통합 관리', icon: 'database'}, {id: 'assign', label: '배정관리', icon: 'clipboard'}, {id: 'auto', label: '자동배정', icon: 'zap'}, {id: 'branch', label: '지점 관리', icon: 'briefcase'}, {id: 'payment', label: '결제 관리', icon: 'wallet'}, {id: 'settings', label: 'DB 상품 설정', icon: 'settings'}, {id: 'hr', label: '인사 관리', icon: 'userplus'}, {id: 'return', label: '반품 관리', icon: 'rotate'}].map(item => (
-                                        <button key={item.id} onClick={()=>setActiveTab(item.id)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab===item.id ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-slate-800'}`}>
-                                            <Icon name={item.icon} size={18}/>{item.label}
-                                        </button>
-                                    ))}
-                                </nav>
-                                <button onClick={()=>setView('login')} className="flex items-center gap-2 text-xs font-bold hover:text-white pl-4"><Icon name="logout" size={14}/> 로그아웃</button>
-                            </aside>
-                            <main className="flex-1 p-8 bg-[#F8FAFC] overflow-y-auto fade-in">
-                                <header className="mb-8 flex justify-between items-center">
-                                    <div><p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Admin OS v20.3</p><h2 className="text-2xl font-black uppercase italic text-slate-800">{activeTab} OVERVIEW</h2></div>
-                                    <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-full border shadow-sm"><Icon name="user" size={16}/> <span className="text-xs font-bold">{currentUser?.name}</span></div>
-                                </header>
-                                {/* 탭별 뷰 렌더링 */}
-                                {activeTab === 'dashboard' && <DashboardView masterDB={masterDB} returnRequests={returnRequests} />}
-                                {activeTab === 'db' && <DBManageView masterDB={masterDB} partners={partners} branches={branches} dbTypes={dbTypes} onAssign={()=>{}} applyRequests={applyRequests} />}
-                                {activeTab === 'assign' && <AssignmentManageView applyRequests={applyRequests} masterDB={masterDB} dbTypes={dbTypes} />}
-                                {activeTab === 'auto' && <AutoAssignView onRunAutoAssign={()=>{}} callApi={callApi} />}
-                                {activeTab === 'branch' && <BranchManageView branches={branches} onManageBranch={handleManageBranch} />}
-                                {activeTab === 'payment' && <PaymentView payments={payments} dbTypes={dbTypes} onUpdatePayment={handleUpdatePayment} />}
-                                {activeTab === 'hr' && <HRView partners={partners} branches={branches} onAddUser={handleAddUser} onUpdateUser={handleUpdateUser} />}
-                                {activeTab === 'settings' && <SettingsView dbTypes={dbTypes} setDbTypes={setDbTypes} callApi={callApi} />}
-                                {activeTab === 'return' && <ReturnView returnRequests={returnRequests} onUpdateReturn={handleUpdateReturn} />}
-                            </main>
-                        </>
-                    )}
-                </div>
-            );
-        };
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<AdminApp />);
-    </script>
-</body>
-</html>
